@@ -34,3 +34,11 @@ img {
   display: block;
   max-width: 100%;
 }
+
+.content{
+  max-width: 800px;
+}
+
+.card{
+  height: 200px;
+}

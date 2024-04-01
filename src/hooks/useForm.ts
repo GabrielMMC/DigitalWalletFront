@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, ChangeEventHandler } from 'react';
 
 type FormState = {
   [key: string]: any;
@@ -22,8 +22,8 @@ const useForm = (initialState: InitialState) => {
   const [errors, setErrors] = useState<ErrorsState>({});
 
   // Handles changes to form fields and updates the form state accordingly
-  const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = target;
+  const handleChange = (event: ChangeEvent<HTMLInputElement> | any) => {
+    const { name, value } = event.target
 
     setForm((prevForm) => ({
       ...prevForm,
@@ -102,10 +102,8 @@ const useForm = (initialState: InitialState) => {
   };
 
   // Validates that all required fields have a value
-  const hasEmpty = (igonreFields?: string[]) => {
-    const errorFields = Object.keys(form).filter((fieldName) =>
-      (!form[fieldName] || form[fieldName].trim() === '')
-      && !igonreFields?.includes(form[fieldName]));
+  const hasEmpty = (ignoreFields?: string[]) => {
+    const errorFields = Object.keys(form).filter((fieldName) => !form[fieldName] && !ignoreFields?.includes(form[fieldName]));
 
     if (errorFields.length > 0) {
       errorFields.forEach((fieldName) =>
@@ -147,7 +145,8 @@ const useForm = (initialState: InitialState) => {
     hasEmpty,
     getFormData,
     validateFieldType,
-    handleBlur
+    handleBlur,
+    resetErrors
   };
 };
 

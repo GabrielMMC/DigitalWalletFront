@@ -1,42 +1,49 @@
-import { useState } from "react";
 import useForm from "./useForm";
+import { useState } from "react";
 import { login } from "@/services/auth";
 import { setCookies } from "@/utils/next-api";
-import { Response } from "@/models/Request";
-import { User } from "@/models/User";
+import { User } from "@/domain/User";
+import { redirect } from "next/navigation";
+import { useContext } from "@/context/user-context";
+import Echo from "laravel-echo";
+import pusherJs from "pusher-js";
 
 type LoginForm = {
-  username: string;
+  email: string;
   password: string;
 };
 
 const useLogin = (initialState: LoginForm) => {
   const { form, errors, setError, handleChange, handleBlur, hasEmpty } = useForm(initialState);
+  const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
-  const [errorMessage, SetErrorMessage] = useState('')
+  const { setUser } = useContext()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (!hasEmpty()) {
+      return
+    }
 
     if (form.password.length < 6) {
       setError('password', 'A senha precisa de 6 caracteres')
       return
     }
-    if (!hasEmpty()) {
-      return
-    }
 
+    setErrorMessage('')
     setLoading(true)
-    const { data, ok, error }: Response<User> = await login(form);
+    const { data, ok, error } = await login<User>(form);
     setLoading(false)
 
-    if (!ok) {
-      SetErrorMessage("Credenciais incorretas")
+    if (error) {
+      setErrorMessage(error)
       return
     }
-    if (data) {
+
+    if (data && ok) {
       setCookies('token', data?.token)
-      location.reload()
+      setUser(data)
     }
   }
 

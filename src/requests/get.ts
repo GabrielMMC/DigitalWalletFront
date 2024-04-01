@@ -2,7 +2,7 @@
 
 import apiError from '@/utils/api-error';
 import { cookies } from 'next/headers';
-import { Response } from '@/models/Request';
+import { Response } from '@/domain/Request';
 import { revalidateTags } from '@/utils/next-api';
 import { API_URL } from './variables';
 
@@ -16,11 +16,11 @@ export const GET = async <T>(path: string, tags?: string | string[], next?: Next
       headers,
       next
     });
-    if (!response.ok) throw new Error("fetching error")
+    if (!response.ok) throw new Error("fetching error: " + response.status)
     const data = await response.json();
     if (tags) revalidateTags(tags);
 
-    return { data, ok: true, error: '' };
+    return { data: data.collection ?? data, ok: true, error: '', pagination: data?.pagination };
   } catch (error: unknown) {
     return apiError(error);
   }

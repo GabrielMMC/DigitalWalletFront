@@ -15,6 +15,10 @@ export const setCookies = (name: string, value: string, options?: ResponseCookie
   cookies().set(name, value, cookieOptions);
 }
 
+export const getCookie = async (name: string) => {
+  return cookies().get(name)?.value;
+}
+
 export const revalidateTags = (tags: string | string[]): void => {
   if (Array.isArray(tags)) {
     for (const tag of tags) {
